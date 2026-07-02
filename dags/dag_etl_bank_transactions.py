@@ -64,8 +64,8 @@ CREATE TABLE IF NOT EXISTS trx_clean (
     reference_no        VARCHAR(100)
 );
 
-CREATE TABLE IF NOT EXISTS trx_sample (
-    transaction_id      VARCHAR(50),
+CREATE TABLE IF NOT EXISTS fact_transactions (
+    transaction_id      VARCHAR(50) PRIMARY KEY,
     transaction_code    VARCHAR(50),
     account_id          VARCHAR(50),
     customer_id         VARCHAR(50),
@@ -144,8 +144,14 @@ def dag_etl_bank_transactions():
         sql     = "01_transform.sql",
     )
 
-    # ── Dependencies ──────────────────────────────────────────────────────────
-    create_tables >> extract() >> transform
+    # ── Task 4: Load trx_clean → trx_sample (upsert) ─────────────────────────
+    load = SQLExecuteQueryOperator(
+        task_id = "load",
+        conn_id = CONN_ID,
+        sql     = "02_load.sql",
+    )
 
+    # ── Dependencies ──────────────────────────────────────────────────────────
+    create_tables >> extract() >> transform >> load
 
 dag_etl_bank_transactions()
