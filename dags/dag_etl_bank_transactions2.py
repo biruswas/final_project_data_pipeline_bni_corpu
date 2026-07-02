@@ -145,7 +145,7 @@ def dag_etl_bank_transactions():
     )
 
     # ── Dependencies ──────────────────────────────────────────────────────────
-    create_tables >> extract() >> transform
+    create_tables >> extract() >> transform >> load
 
 
 dag_etl_bank_transactions()
